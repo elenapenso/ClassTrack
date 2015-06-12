@@ -1,5 +1,8 @@
-#intro-img {
-	position: absolute;
+.image-wrapper {
+	display: table-cell;
+  	text-align: center;
+  	vertical-align: middle;
+  	background-color: #999;
 	max-width: 100%;
     height: auto;
     width: auto\9; /* ie8 */
