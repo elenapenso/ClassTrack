@@ -7,6 +7,12 @@
 			templateUrl: 'directives/app-header.html'
 		};	
 	});
+	app.directive('appFooter', function(){
+		return{
+			restrict: 'E',
+			templateUrl: 'directives/app-footer.html'
+		};	
+	});
 
 
 })();
