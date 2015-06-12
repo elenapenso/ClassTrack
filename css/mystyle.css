@@ -1,3 +1,33 @@
+#intro-img {
+	position: absolute;
+	top: 30%;
+	bottom: 20%;
+	right: 30%;
+	left: 20%;
+	max-width: 400px;
+}
+.page-header {
+	color: white;
+	background-color: black;
+	margin: 0; 
+	padding: 0;
+	position: fixed;
+	width: 100%;
+    top: 0;
+	z-index: 1;
+	text-align: center;
+}
+.page-footer {
+	color: white;
+	background-color: black;
+	margin: 0; 
+	padding: 0;
+	position: fixed;
+    bottom: 0;
+	width: 100%;
+}
+
+
 div.navbar-form {
 	width: 50%;
 	float: right;
@@ -5,19 +35,6 @@ div.navbar-form {
 	padding: 0;
 	margin-right: 6px;
 }
-
-#intro-img {
-	position: absolute;
-	top: 30%;
-	right: 30%;
-	width: 30%;
-	height: auto;
-	left: 38%;
-	bottom: 20%;
-	max-width: 400px;
-	min-width: 50px;
-}
-
 #incidents, #incidents-edit {
 	overflow-y: scroll;
 	max-height: 600px;
@@ -79,17 +96,7 @@ span.out {
 	padding-left: 0.5em;
 }
 
-.page-header {
-	color: white;
-	background-color: black;
-	margin: 0; 
-	padding: 0;
-	position: fixed;
-	width: 100%;
-    top: 0;
-	z-index: 1;
-	text-align: center;
-}
+
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
 	z-index: 0;
 }
@@ -113,15 +120,6 @@ span.out {
 	border-color: #428bca;
 }
 
-.page-footer {
-	color: white;
-	background-color: black;
-	margin: 0; 
-	padding: 0;
-	position: fixed;
-    bottom: 0;
-	width: 100%;
-}
 .input-group .form-control {
 	z-index: 0;
 }
