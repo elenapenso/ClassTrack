@@ -1,0 +1,650 @@
+
+<script type="text/javascript">
+		// app.initialize();
+function onLoad(){
+	document.addEventListener("deviceready", onDeviceReady, true);
+}
+$(document).on( "mobileinit", function() {
+    $.mobile.allowCrossDomainPages = true;
+    $.support.cors = true;
+});
+  
+//--- Call for initialization of the database -------------
+$(document).ready(function() {
+	initDatabase();
+	showClasses(); //to be changed, called from main main
+});
+//--- When click 'edit' under CLASS MAIN ------------------
+function editClass() {              
+	$("#list-classes li").each( function() {    //check why doesn't work if copy on .js
+		var theclass = $(this);
+		if (theclass.hasClass('active')) {
+			db.transaction(function (tx) {  
+				tx.executeSql("SELECT * FROM classes WHERE className = ?;", [theclass.html()], function (tx, result) {
+					var item = result.rows.item(0);
+					var name = item['className'];
+					var description = item['classDescription'];
+					closeClassPanels();
+					$('#panel-classes-class-edit').css('display','block');
+					$('.page-header h1').css('display','block');
+					$('#edit-class-name').val(name);		
+					$('#edit-class-description').val(description);		
+					$('#class-edit-text').html(theclass.html());
+					return;
+				}); 
+			});
+		}
+	});
+}
+//--- When click 'edit' under NOTES MAIN ----------------
+function editNote() {    
+	var theclass = $('#notes-main-text').html();
+	$("#list-notes li").each(function() {
+		var selection = $(this);
+		if (selection.hasClass('active')) { 
+			var notedate = selection.find('span').html();   
+			var date = convertDate(parseInt(notedate));                   
+			date = date + '<span id="note-timestamp" style="visibility:hidden">' + notedate + '</span>';
+			var notecontent = selection.find('p').html();         
+			closeNotePanels();
+			$('#panel-notes-note-edit').css('display','block');
+			$('#note-date').html(date);
+			$('#edit-note-content').val(notecontent);		
+			$('#note-edit-text').html(theclass);
+			$('#edit-note-content').focus();		
+			$('.page-header h1').css('display','block');
+			return;
+		}
+	});
+}       	
+//--- When click 'edit' under TRACK BEHAVIOR ----------------
+function editStudentIncidents(thestudent) {    
+	var date = new Date().toLocaleDateString();	
+	$('#edit-stuIncident-list li').remove();
+	db.transaction(function (tx) {   
+		tx.executeSql("SELECT behavior.behMark, behavior.behIncidents, behavior.behComments FROM behavior INNER JOIN students "+
+		"ON students.studentId = behavior.studentId WHERE students.studentName = ? AND behavior.classId = ? "+
+		" AND behavior.behSession = ?;", [thestudent,classID, date], function (tx, result) {
+			var item = result.rows.item(0);
+			var mark = item['behMark'];
+			var incidentString = item['behIncidents'];
+			var comments = item['behComments'];           
+			var incidentArray = [];
+			closeStudentPanels();
+			$('#panel-students-student-edit').css('display','block');
+			$('#panel-body-student-incidents').css('display','block');
+			$('#student-edit-text').html(thestudent);
+			$('#buttons-student-incident-edit').css('display','block');
+			$('.page-header h1').css('display','block');
+			if (mark == 'well') {
+				$('#today-behavior').children('span').html('');   
+				$('#today-behavior').children('span').css('color','gray');
+				$('#today-behavior').children("span").removeClass().addClass('icon icon-smiley2'); 	
+			} else if (mark == 'reg') {
+				$('#today-behavior').children('span').html(' !');
+				$('#today-behavior').children('span').css('color','#428bca');
+				$('#today-behavior').children("span").removeClass().addClass('icon icon-neutral2'); 	
+			} else if (mark == 'bad') {
+				$('#today-behavior').children('span').html(' !!!');   
+				$('#today-behavior').children('span').css('color','red');
+				$('#today-behavior').children("span").removeClass().addClass('icon icon-sad2'); 	
+			}
+			$.event.trigger('loadEditStudentIncidents');
+			$('#behavior-comment').val(comments);		
+			if (!incidentString) {			
+			} else if (incidentString != '') {
+				incidentArray = incidentString.split("-");
+				
+				tx.executeSql("SELECT incidentName, incidentLevel, incidentCode FROM incidents;", [], function (tx, result2){		
+					for (var j = 0; j < incidentArray.length; j++) {
+						var code = incidentArray[j];
+						for (var k = 0; k < result2.rows.length; k++) {
+					        if (code ==  result2.rows.item(k).incidentCode) {
+								var dataname = result2.rows.item(k).incidentName;
+								var datamark = result2.rows.item(k).incidentLevel;
+								$("#edit-stuIncident-list").append('<li class="list-group-item" style="color:black">'+ code +' - '+ dataname +'<span></span></li>');
+								if (datamark == 'minor') { 
+									$("#edit-stuIncident-list li:last-child span").removeClass().addClass('icon icon-neutral2'); 
+									$("#edit-stuIncident-list li:last-child span").html(' !'); 
+								} else if (datamark == 'major') { 
+									$("#edit-stuIncident-list li:last-child span").removeClass().addClass('icon icon-sad2'); 
+									$("#edit-stuIncident-list li:last-child span").html(' !!!'); 
+								}		
+							}
+						}
+					}
+				});
+				
+			/*	for (var j = 0; j < incidentArray.length; j++) {
+					var code = incidentArray[j];
+					tx.executeSql("SELECT incidentName, incidentLevel FROM incidents WHERE incidentCode = ?;", [incidentArray[j]], function (tx, result2){		
+						var dataset2 = result2.rows.item(0).incidentName;
+						var datamark = result2.rows.item(0).incidentLevel;
+						$("#edit-stuIncident-list").append('<li class="list-group-item" style="color:black">'+ code +' - '+ dataset2 +'<span></span></li>');
+						if (datamark == 'minor') { 
+							$("#edit-stuIncident-list li:last-child span").removeClass().addClass('icon icon-neutral2'); 
+							$("#edit-stuIncident-list li:last-child span").html(' !'); 
+						} else if (datamark == 'major') { 
+							$("#edit-stuIncident-list li:last-child span").removeClass().addClass('icon icon-sad2'); 
+							$("#edit-stuIncident-list li:last-child span").html(' !!!'); 
+						}
+					});
+				} */
+			}
+		});    
+	});   
+}    	
+
+//--- When click 'edit' under STUDENT MAIN ----------------
+function editStudent() {                   
+	$("#list-students li").each( function() {
+		var selection = $(this);
+		var loopFlag = 0;
+		if (selection.hasClass('active')) {       
+			var selectionContent = selection.html();           
+			var locate = selectionContent.lastIndexOf("<span");
+			if (locate == -1) {
+				thestudent = selectionContent;
+			} else {     
+				thestudent = selectionContent.substring(0,locate);
+			}
+			db.transaction(function (tx) {   
+				tx.executeSql("SELECT students.studentName, students.studentComments, categories.categoryName, categories.categoryTag "+
+				" FROM students INNER JOIN class_students ON students.studentId = class_students.studentId LEFT OUTER JOIN categories "+
+				" ON categories.categoryId = class_students.categoryId WHERE students.studentName = ? AND class_students.classId = ?;", [thestudent,classID], function (tx, result) {
+					var item = result.rows.item(0);
+					var name = item['studentName'];
+					var description = item['studentComments'];
+					var category = item['categoryName'];           
+					var tag = item['categoryTag'];             					
+					closeStudentPanels();
+					$('#panel-students-student-edit').css('display','block');
+					$('#panel-body-student-edit').css('display','block');
+					$('#edit-student-name').val(name);		
+					$('#edit-student-comments').val(description);		
+					$('#selected-category').val(category);		
+					$('#category-tag').val(tag);		
+					if ((category != null) && (category > 0)) {  $('#category-tag').attr('disabled', true);  } 
+					$('#student-edit-text').html(thestudent);
+					$('#two-buttons-student').css('display','block');
+					$('.page-header h1').css('display','block');
+				});    
+			});   
+			loopFlag = 1; 
+		}
+		if (loopFlag == 1) {  return false;  }
+	});   
+	$.event.trigger('loadCategory');
+}
+//--- This start a clock in the footer --------------------
+function startTime() {
+    var today=new Date();
+    var h=today.getHours();
+    var m=today.getMinutes();
+    var s=today.getSeconds();
+    if (m < 10) { m = "0" + m };
+    if (s < 10) { s = "0" + s };
+    $('#clock').html(h+":"+m+":"+s);
+    var t = setTimeout(function(){startTime();}, 500);
+}
+//--- Select classes in MAIN PANEL ------------------------
+$(document).on('tap', '#list-classes li', function() {             
+	var selection = $(this);
+	if (selection.hasClass('active') == true) {
+		selection.removeClass('active');
+	} else {
+		selection.addClass('active');
+	}
+});
+
+//--- Select student in MAIN EDIT ------------------------  
+$(document).on('tap', '#list-students li', function() {             
+	var selection = $(this);
+	if ($('#buttons-student-edit').css('display') == 'block') {
+		if (selection.hasClass('active') == true) {
+			selection.removeClass('active');
+		} else {
+			selection.addClass('active');
+		}
+	}
+});
+
+//--- When click 'Backup' under CLASS OPTIONS --------------
+function changeToBackup() { 
+	var input = $('#class-options-text').html(); 
+	var date = new Date(); //.toLocaleDateString();	 
+	closeClassPanels();
+	closeStudentPanels();
+	closePages();
+	$('#page-classes').css('display','block');
+	$('#panel-backup-recover').css('display','block');
+//	$('#top-buttons').css('display','none');
+	$('#selected-backup').val(input);
+	$('#start-date').val(date.yyyymmdd());  
+	$('#end-date').val('');  
+	$('.page-header h1').css('display','block');
+	$('#backup-text').html(input);
+}
+
+Date.prototype.yyyymmdd = function() {         
+	var yyyy = this.getFullYear().toString();                                    
+	var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based         
+	var dd  = this.getDate().toString();             
+	return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
+};  
+
+$(document).on('tap', '#intro-img', function() {
+	$('#page-classes').css('display','block');
+	$('#page-main').css('display','none');
+});
+
+</script>	
+		
+	</head>
+	<body onload="startTime();">
+<!-- Header ----------------------------------------------> 
+		<div class="page-header">
+			<h1 style="letter-spacing:0.5em">CLASS TRACK</h1>
+			<div id="top-buttons" style="display:none">
+				<div class="btn-group navbar-btn" id="fix">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btn-filter">Filter
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" id="filters-att" role="menu">
+						<li><a>Attend</a></li>
+						<li><a>Late</a></li>
+						<li><a>Dismissal</a></li>
+						<li><a>All</a></li>
+						<li class="divider"></li>
+					</ul>
+				</div>
+				<div class="navbar-form" role="search">
+					<div class="input-group" id="search-box">
+						<input type="text" class="form-control" placeholder="Search" id="search-input" />
+						<div class="input-group-btn">
+							<button class="btn btn-primary" type="submit" onclick="giveFocus()" id="btn-search" ><span class="glyphicon glyphicon-search"></span></button>
+							<button class="btn btn-default" type="submit" onclick="quickSave()" id="btn-quicksave" ><span class="glyphicon glyphicon-plus"></span></button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="top-buttons-behv" style="display:none">
+				<div class="btn-group navbar-btn" id="fix2">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btn-filter-behv">Filter
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" id="filters-beh" role="menu">
+						<li><a>Attendance</a></li>
+						<li><a>Present</a></li>
+						<li class="divider"></li>
+						<li><a><span class='icon icon-smiley2'></span>Good behavior</a></li>
+						<li><a><span class='icon icon-neutral2'></span><span class='icon icon-sad2'></span>Incidents</a></li>
+						<li><a>All</a></li>
+					</ul>			
+				</div>
+				<div class="navbar-form" role="search">   <!-- set autocomplete !!!!!!-->
+					<div class="input-group" id="search-box-beh">
+						<input type="text" class="form-control" placeholder="Search" id='search-input-beh'/>
+						<div class="input-group-btn">
+							<button class="btn btn-primary" type="submit" onclick="giveFocus()" id="btn-search-beh" ><span class="glyphicon glyphicon-search"></span></button>
+							<button class="btn btn-default" type="submit" onclick="quickSave()" id="btn-quicksave-beh" ><span class="glyphicon glyphicon-plus"></span></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- Main ------------------------------------------------> 
+   		<div id="page-main" style="display:block">
+			<img id="intro-img" src="img/professor-enrollment.png"/>
+		</div>
+<!-- Classes --------------------------------------------->
+		<div id="page-classes" style="display:none">      
+			<div class="panel-primary" id="panel-classes-main" style="display:block">  <!-- MAIN -->
+				<div class="panel-heading">
+					<h3 class="panel-title">My Classes</h3>
+				</div>
+				
+				<div class="panel-body">
+					<div class="list-group" id="list-classes" data-toggle="items">
+						<li class="list-group-item disabled"><input type="text" id="input-new-class" class="form-control" placeholder="type a new class name..." style="display:none"/></li>    
+					</div>
+				</div>
+				<div class="panel-bottom-buttons">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="btnEditClass" onclick="editClass()">Edit
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+						<button type="button" class="btn btn-success" id="btnAddClass">Add class
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btnDeleteClass">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+					</div>
+				</div>
+            </div>
+			<div class="panel-primary" id="panel-classes-class-edit" style="display:none">  <!-- CLASS-EDIT -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="class-edit-text">Edit Class Information</h3>
+				</div>
+				<div class="panel-body">
+					<input type="text" id="edit-class-name" class="form-control" placeholder="class name."/>
+					<textarea class="form-control" rows="5" id="edit-class-description" placeholder="class description."></textarea>
+				</div>	
+				<div class="panel-bottom-buttons" id="two-buttons-class" >
+					<div class="btn-group">
+						<button type="button" class="btn btn-success" id="btnSaveClassForm" >Save
+							<span class="glyphicon glyphicon-saved"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btnClearClassForm" >Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="panel-primary" id="panel-classes-class-options" style="display:none">  <!-- CLASS-OPTIONS -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="class-options-text">Class Options</h3>
+				</div><br>
+				<div class="panel-body" id="first-menu" style="display:block">
+					<button type="button" class="btn btn-lg btn-warning" id="btn-session" onclick="trackAttendance()">Attendance
+						<span class="glyphicon glyphicon-ok"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-students" onclick="trackBehavior()">Behavior
+						<span class="glyphicon glyphicon-star"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-tasks">Tasks
+						<span class="glyphicon glyphicon-list-alt"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-notes" onclick="changeToNotes()">Notes
+						<span class="glyphicon glyphicon-pushpin"></span>
+					</button><hr>
+					<button type="button" class="btn btn-lg btn-primary" id="btn-configure" onclick="changeToConfiguration()">Configuration
+						<span class="glyphicon glyphicon-tasks"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-primary" id="btn-backup" onclick="changeToBackup()">Backup
+						<span class="glyphicon glyphicon-transfer"></span>
+					</button>
+				</div>
+				<div class="panel-body" id="config-menu" style="display:none">
+					<button type="button" class="btn btn-lg btn-info" id="btn-students-config" onclick="changeToStudents()">Students
+						<span class="glyphicon glyphicon-user"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-category-config" onclick="changeToCategory()" >Categories
+						<span class="glyphicon glyphicon-tower"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-incidents-config" onclick="changeToIncident()" >Incidents
+						<span class="glyphicon glyphicon-fire"></span>
+					</button>
+					<button type="button" class="btn btn-lg btn-info" id="btn-task-config" onclick="">Tasks
+						<span class="glyphicon glyphicon-th"></span>
+					</button>
+				</div>
+			</div>
+			<div class="panel-primary" id="panel-backup-recover" style="display:none">  <!-- BACKUP -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="backup-text">Backup/Recover class information</h3>
+				</div><br>
+				<div class="panel-body" style="display:block">  
+					<input type="text" class="form-control" id="username" placeholder="user email" />
+					<input type="password" class="form-control" id="password" placeholder="password" />
+					<button type="button" class="btn btn-primary" id="login-save" >Save</button>
+					<br><br><hr>
+					<div class="input-group" id="enter-classes" style="margin-bottom:1em;">
+						<div class="input-group-btn input-append" id="fix5" >
+							<button type="button" class="btn btn-default dropdown-toggle" id="enter-classes-button" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" id="classes-backup">
+								<li><a>This Class</a></li>
+								<li><a>All My Classes</a></li>   
+							</ul>
+						</div>
+						<input type="text" class="form-control" id="selected-backup" placeholder="select class" />
+					</div>
+					<div style="display: inline">Range of dates:
+						<input type="date" class="form-control" id="start-date" placeholder="start date" />
+						<input type="date" class="form-control" id="end-date" placeholder="end date" />
+					</div>
+					<p id="result"></p>	
+				</div>
+				<div class="panel-bottom-buttons" id="two-buttons-backup" >
+					<div class="btn-group">
+						<button type="button" class="btn btn-success" id="btn-download">Download
+							<span class="glyphicon glyphicon-cloud-download"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btn-upload">Backup
+							<span class="glyphicon glyphicon-floppy-disk"></span>
+						</button>
+					</div>
+				</div>	
+			</div>
+		</div>
+<!-- Students -------------------------------------------->      <!-- check all divs for collapse --> 
+		<div id="page-students" style="display:none">
+			<div class="panel-primary" id="panel-students-main" style="display:none">  <!-- MAIN -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="students-main-text">Students in class </h3>
+				</div>
+				<div class="panel-body" id="panel-body-students">
+					<div class="list-group" id="list-students" data-toggle="items">
+					</div>
+				</div>
+				<div class="panel-bottom-buttons" id='buttons-student-edit'>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="btnEditStudent" onclick="editStudent()">Edit
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+						<button type="button" class="btn btn-success" onclick="addStudentToClass()">Add student
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+						<button type="button" class="btn btn-default" onclick="deleteStudents()">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+					</div>
+				</div>
+				<div id="buttons-track-attendance">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="btnLate">Late</button>
+						<button type="button" class="btn btn-default" id="btnAttend">Attend
+							<span class="glyphicon glyphicon-ok"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btnDismiss">Dismiss</button>
+					</div>
+				</div>
+				<div id="buttons-track-behavior"> <!----------------------------------------------------->
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="btnEditBehavior">Edit</button>
+						<button type="button" class="btn btn-default" id="btnIncident">Incident
+							<span class="glyphicon glyphicon-fire"></span>
+						</button>
+						<div class="input-group" id="select-incident">
+							<input type="text" class="form-control" id="select-incident-input" placeholder="select.." />
+							<div class="input-group-btn input-append dropup" id="incident-droplist">
+								<button type="button" class="btn btn-default dropdown-toggle" id="incident-button" data-toggle="dropdown">
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right scrollable-menu" id="incidents">
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel-primary" id="panel-students-student-edit" style="display:none">  <!-- STUDENT-EDIT -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="student-edit-text">Edit Student Information</h3>
+				</div>
+				<div class="panel-body" id="panel-body-student-edit">
+					<input type="text" id="edit-student-name" class="form-control" placeholder="student name."/>
+					<div class="category-group" id="cat-edit-student">
+						<div class="input-group" id="edit-student-category">
+							<div class="input-group-btn input-append" id="fix3">
+								<button type="button" class="btn btn-default dropdown-toggle" id="category-button" data-toggle="dropdown">
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" id="categories">
+								</ul>
+							</div>
+							<input type="text" class="form-control" id="selected-category" placeholder="category" />
+						</div>		
+						<input type="text" class="form-control" id="category-tag" maxlength="3" placeholder="tag" />
+					</div>
+					<textarea class="form-control" rows="5" id="edit-student-comments" placeholder="comments about the student."></textarea>
+				</div>	
+				<div class="panel-body" id="panel-body-category-edit">
+					<div class="category-group">
+						<div class="input-group" id="edit-category-category">
+							<div class="input-group-btn input-append" id="fix4">
+								<button type="button" class="btn btn-default dropdown-toggle" id="category-button-edit" data-toggle="dropdown">
+									<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" id="categories-edit">
+								</ul>
+							</div>
+							<input type="text" class="form-control" id="selected-category-edit" placeholder="category" />
+						</div>		
+						<input type="text" class="form-control" id="category-tag-edit" maxlength="3" placeholder="tag" />
+					</div>
+					<h5>Categories:</h5>
+					<ul id="all-categories" class='list-group' data-toggle="items" style="list-style-type: none">
+					</ul>
+				</div>	
+				<div class="panel-body" id="panel-body-incident-edit" style="display:none" >
+					<div class="category-group" style="width:100%">
+						<input type="text" class="form-control" id="incident-number" maxlength="4" placeholder="code" />
+						<button type="button" class="btn btn-default" id="btn-level">minor incident<span class="icon icon-neutral2"></span>
+						</button>
+					</div>
+					<div class="btn-group" style="margin-top:6px; margin-left:0">
+						<input type="text" class="form-control" id="selected-incident" style="width:100%" placeholder="incident" />
+					</div>
+					<div style="display:inline-flex">
+						<h5 style="margin-top:1em">Incidents:</h5>
+						<h5 id="oldIncident" style="margin-top:1em; display:inline-flex; color:#fff"></h5>
+					</div>
+					<ul id="all-incidents" class='list-group' data-toggle="items" style="list-style-type:none">
+					</ul>
+				</div>
+				<div class="panel-body" id="panel-body-student-incidents" style="display:none" >
+					<div class="input-group" id="student-behavior">
+						<h5 style="margin-top:1em" id="today-behavior">Today's behavior: <span style="margin-top:0; margin-left: 1em;"></span></h5>
+						<div class="btn-group" id="fix6">
+							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btn-stuEditInc">Add an Incident
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu" id="add-edit-student-inc" role="menu">
+							</ul>
+						</div>
+					</div>
+					<h5 style="margin-top:1em">Incidents:</h5>
+					<ul id="edit-stuIncident-list" class="list-group" data-toggle="items" style="list-style-type:none">
+					</ul>
+					<h5 style="margin-top:1em">Comments:</h5>
+					<textarea class="form-control" rows="8" id="behavior-comment" placeholder="write a comment about the student behavior."></textarea>    
+				</div>				
+				<div class="panel-bottom-buttons" id="two-buttons-student">
+					<div class="btn-group">
+						<button type="button" class="btn btn-success" onclick="saveStudentForm()">Save
+							<span class="glyphicon glyphicon-saved"></span>
+						</button>
+						<button type="button" class="btn btn-default" onclick="clearStudentForm()">Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+				<div class="panel-bottom-buttons" id='buttons-category-edit'>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" onclick="deleteCategory()">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+						<button type="button" class="btn btn-success" onclick="addSaveCategory()">Save
+							<span class="glyphicon glyphicon-save"></span>
+						</button>
+						<button type="button" class="btn btn-default" onclick="clearCategory()">Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+				<div class="panel-bottom-buttons" id='buttons-incident-edit'>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" onclick="deleteIncident()">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+						<button type="button" class="btn btn-success" onclick="addSaveIncident()">Save
+							<span class="glyphicon glyphicon-save"></span>
+						</button>
+						<button type="button" class="btn btn-default" onclick="clearIncident()">Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+				<div class="panel-bottom-buttons" id='buttons-student-incident-edit'>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" onclick="deleteStudentIncident()">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+						<button type="button" class="btn btn-success" onclick="saveStudentIncident()">Save
+							<span class="glyphicon glyphicon-save"></span>
+						</button>
+						<button type="button" class="btn btn-default" onclick="clearStudentIncident()">Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- Notes ----------------------------------------------->
+		<div id="page-notes" style="display:none">      
+			<div class="panel-primary" id="panel-notes-main" style="display:none">  <!-- MAIN -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="notes-main-text">Notes for class</h3>
+				</div>
+				<div class="panel-body">
+					<div class="list-group" id="list-notes" data-toggle="items">
+						<li class="list-group-item disabled"><textarea class="form-control" rows="8" id="input-new-note" placeholder="write a new note for this class." style="display:none"></textarea></li>    
+					</div>
+				</div>
+				<div class="panel-bottom-buttons">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" id="btnEditNote" onclick="editNote()">Edit
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+						<button type="button" class="btn btn-success" id="btnAddNote" onclick="addNoteToClass()">Add note
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btnDeleteNote" onclick="deleteNotes()">Delete
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+					</div>
+				</div>
+            </div>
+			<div class="panel-primary" id="panel-notes-note-edit" style="display:none">  <!-- NOTE-EDIT -->
+				<div class="panel-heading">
+					<h3 class="panel-title" id="note-edit-text">Edit Note Information</h3>
+				</div>
+				<div class="panel-body">
+					<span class="input-xlarge uneditable-input" id="note-date">Some value here</span>
+					<textarea class="form-control" rows="12" id="edit-note-content" placeholder="write a note for this class."></textarea>
+				</div>	
+				<div class="panel-bottom-buttons" id="two-buttons-note">
+					<div class="btn-group">
+						<button type="button" class="btn btn-success" id="btnSaveNoteForm" onclick="saveNoteForm()">Save
+							<span class="glyphicon glyphicon-saved"></span>
+						</button>
+						<button type="button" class="btn btn-default" id="btnClearNoteForm" onclick="clearNoteForm()">Clear
+							<span class="glyphicon glyphicon-refresh"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>	
+<!-- Footer ----------------------------------------------> 		
+		<div class="page-footer">
+			<button type="button" class="btn btn-inverse navbar-btn" id="btnReturn" onclick="btnReturn()">
+				<span class="glyphicon glyphicon-arrow-left"></span> Back
+			</button>
+			<h1 class="navbar-text" id="clock" style="float:right"></h1>
+		</div>
+	</body>
+</html>

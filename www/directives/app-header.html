@@ -1,0 +1,50 @@
+<div class="page-header">
+	<h1 style="letter-spacing:0.5em">CLASS TRACK</h1>
+	<div id="top-buttons" style="display:none">
+		<div class="btn-group navbar-btn" id="fix">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btn-filter">Filter
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" id="filters-att" role="menu">
+				<li><a>Attend</a></li>
+				<li><a>Late</a></li>
+				<li><a>Dismissal</a></li>
+				<li><a>All</a></li>
+				<li class="divider"></li>
+			</ul>
+		</div>
+		<div class="navbar-form" role="search">
+			<div class="input-group" id="search-box">
+				<input type="text" class="form-control" placeholder="Search" id="search-input" />
+				<div class="input-group-btn">
+					<button class="btn btn-primary" type="submit" onclick="giveFocus()" id="btn-search" ><span class="glyphicon glyphicon-search"></span></button>
+					<button class="btn btn-default" type="submit" onclick="quickSave()" id="btn-quicksave" ><span class="glyphicon glyphicon-plus"></span></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="top-buttons-behv" style="display:none">
+		<div class="btn-group navbar-btn" id="fix2">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="btn-filter-behv">Filter
+				<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" id="filters-beh" role="menu">
+				<li><a>Attendance</a></li>
+				<li><a>Present</a></li>
+				<li class="divider"></li>
+				<li><a><span class='icon icon-smiley2'></span>Good behavior</a></li>
+				<li><a><span class='icon icon-neutral2'></span><span class='icon icon-sad2'></span>Incidents</a></li>
+				<li><a>All</a></li>
+			</ul>			
+		</div>
+		<div class="navbar-form" role="search">   <!-- set autocomplete !!!!!!-->
+			<div class="input-group" id="search-box-beh">
+				<input type="text" class="form-control" placeholder="Search" id='search-input-beh'/>
+				<div class="input-group-btn">
+					<button class="btn btn-primary" type="submit" onclick="giveFocus()" id="btn-search-beh" ><span class="glyphicon glyphicon-search"></span></button>
+					<button class="btn btn-default" type="submit" onclick="quickSave()" id="btn-quicksave-beh" ><span class="glyphicon glyphicon-plus"></span></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
