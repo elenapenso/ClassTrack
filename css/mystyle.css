@@ -1,11 +1,10 @@
 .image-wrapper {
-	display: table-cell;
   	text-align: center;
   	vertical-align: middle;
   	background-color: #999;
 	max-width: 100%;
-    height: auto;
-    width: auto\9; /* ie8 */
+    padding-top: 10%;
+    margin: 0 auto;
 }
 .page-header {
 	color: white;
