@@ -1,0 +1,46 @@
+<div class="panel-primary" ng-show="main.displayRefresh(1)">  <!-- VIEW CLASSES -->
+	<page-title> My Classes </page-title>
+	// la lista 
+	<div class="panel-body">
+		<div class="list-group" id="list-classes" data-toggle="items">
+			<li class="list-group-item disabled"><input type="text" id="input-new-class" class="form-control" placeholder="type a new class name..." style="display:none"/></li>    
+		</div>
+	</div>
+	<page-buttons>Edit-Add Class- Delete</page-buttons>
+</div>
+
+<div class="panel-primary" ng-show="editClass.isClicked()">  <!-- EDIT A CLASS -->
+	<page-title> {{class}} </page-title> {{class}} 
+	//edit a class panel
+	<div class="panel-body">
+		<input type="text" id="edit-class-name" class="form-control" placeholder="class name."/>
+		<textarea class="form-control" rows="5" id="edit-class-description" placeholder="class description."></textarea>
+	</div>	
+	<div class="panel-bottom-buttons" id="two-buttons-class" >
+		<div class="btn-group">
+			<button type="button" class="btn btn-success" id="btnSaveClassForm" >Save
+				<span class="glyphicon glyphicon-saved"></span>
+			</button>
+			<button type="button" class="btn btn-default" id="btnClearClassForm" >Clear
+				<span class="glyphicon glyphicon-refresh"></span>
+			</button>
+		</div>
+	</div>
+	<page-buttons>Save-clear</page-buttons>
+</div>
+
+
+
+
+
+//use ng-swithc to alternat both divs
+to use the global variabl as a service, should be in app.js
+   myApp.factory('myService', [ '$rootScope', function ($rootScope) {
+
+       return {
+
+        getData: function() {
+            return $rootScope;
+        }
+       };
+      }])

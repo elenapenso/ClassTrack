@@ -1,9 +1,8 @@
 .image-wrapper {
   	text-align: center;
   	vertical-align: middle;
-  	background-color: #999;
 	max-width: 100%;
-    padding-top: 10%;
+    padding-top: 15%;
     margin: 0 auto;
 }
 .page-header {
@@ -26,7 +25,39 @@
     bottom: 0;
 	width: 100%;
 }
-
+.panel-heading {
+	position: relative;
+}
+.panel-heading-green {
+	color: #fff;
+	background-color: #449d44;
+	border-color: #398439;
+}
+.panel-heading-yellow {
+	color: #000;
+	background-color: #FAF561;
+	border-color: #FAF616;
+}
+.panel-heading-blue {
+	color: #fff;
+	background-color: #428bca;
+	border-color: #428bca;
+}
+.panel-bottom-buttons{                    /*#buttons-track-attendance, #buttons-track-behavior*/
+	background-color: white;
+	position: fixed;
+	bottom: 3.65em;
+	width: 100%;
+}
+.btn-group {
+	width: 100%;
+	margin-left: 4%;
+	margin-right: 4%;
+}
+#two-buttons-class, #two-buttons-student, #two-buttons-note {
+	margin-left:25%;
+}
+/**/
 
 div.navbar-form {
 	width: 50%;
@@ -100,25 +131,7 @@ span.out {
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
 	z-index: 0;
 }
-.panel-heading {
-	position: relative;
-}
-.panel-primary>.panel-heading {
-	color: #fff;
-	background-color: #449d44;
-	border-color: #398439;
-}
-#page-notes .panel-heading  {
-	color: #000;
-	background-color: #FAF561;
-	border-color: #FAF616;
-}
 
-#page-students .panel-heading  {
-	color: #fff;
-	background-color: #428bca;
-	border-color: #428bca;
-}
 
 .input-group .form-control {
 	z-index: 0;
@@ -188,9 +201,7 @@ h1 {
 	width: 100%;
 	margin-right: 1%;
 }
-#two-buttons-class, #two-buttons-student, #two-buttons-note {
-	margin-left:25%;
-}
+
 #btn-level span {
 	margin-top: 0.2em;
 }
@@ -202,12 +213,6 @@ h1 {
 	float: left;
 }
 
-.panel-bottom-buttons, #buttons-track-attendance, #buttons-track-behavior {
-	background-color: white;
-	position: fixed;
-	bottom: 3.65em;
-	width: 100%;
-}
 
 #edit-class-description, .btn-group.bootstrap-select, #edit-student-comments, #cat-edit-student {
 	margin-top: 1em;
@@ -225,11 +230,7 @@ h1#clock {
 	display: inline;
 }
 
-.btn-group {
-	width: 100%;
-	margin-left: 4%;
-	margin-right: 4%;
-}
+
 #login-button, #password-button {
 	float: right;
 	margin-left: .5em;

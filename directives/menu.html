@@ -1,0 +1,84 @@
+
+	<div class="panel-primary" id="panel-classes-class-options" style="display:none">  <!-- CLASS-OPTIONS -->
+		<div class="panel-heading">
+			<h3 class="panel-title" id="class-options-text">Class Options</h3>
+		</div><br>
+		<div class="panel-body" id="first-menu" style="display:block">
+			<button type="button" class="btn btn-lg btn-warning" id="btn-session" onclick="trackAttendance()">Attendance
+				<span class="glyphicon glyphicon-ok"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-students" onclick="trackBehavior()">Behavior
+				<span class="glyphicon glyphicon-star"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-tasks">Tasks
+				<span class="glyphicon glyphicon-list-alt"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-notes" onclick="changeToNotes()">Notes
+				<span class="glyphicon glyphicon-pushpin"></span>
+			</button><hr>
+			<button type="button" class="btn btn-lg btn-primary" id="btn-configure" onclick="changeToConfiguration()">Configuration
+				<span class="glyphicon glyphicon-tasks"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-primary" id="btn-backup" onclick="changeToBackup()">Backup
+				<span class="glyphicon glyphicon-transfer"></span>
+			</button>
+		</div>
+		<div class="panel-body" id="config-menu" style="display:none">
+			<button type="button" class="btn btn-lg btn-info" id="btn-students-config" onclick="changeToStudents()">Students
+				<span class="glyphicon glyphicon-user"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-category-config" onclick="changeToCategory()" >Categories
+				<span class="glyphicon glyphicon-tower"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-incidents-config" onclick="changeToIncident()" >Incidents
+				<span class="glyphicon glyphicon-fire"></span>
+			</button>
+			<button type="button" class="btn btn-lg btn-info" id="btn-task-config" onclick="">Tasks
+				<span class="glyphicon glyphicon-th"></span>
+			</button>
+		</div>
+	</div>
+
+
+
+
+
+	<div class="panel-primary" id="panel-backup-recover" style="display:none">  <!-- BACKUP -->
+		<div class="panel-heading">
+			<h3 class="panel-title" id="backup-text">Backup/Recover class information</h3>
+		</div><br>
+		<div class="panel-body" style="display:block">  
+			<input type="text" class="form-control" id="username" placeholder="user email" />
+			<input type="password" class="form-control" id="password" placeholder="password" />
+			<button type="button" class="btn btn-primary" id="login-save" >Save</button>
+			<br><br><hr>
+			<div class="input-group" id="enter-classes" style="margin-bottom:1em;">
+				<div class="input-group-btn input-append" id="fix5" >
+					<button type="button" class="btn btn-default dropdown-toggle" id="enter-classes-button" data-toggle="dropdown">
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" id="classes-backup">
+						<li><a>This Class</a></li>
+						<li><a>All My Classes</a></li>   
+					</ul>
+				</div>
+				<input type="text" class="form-control" id="selected-backup" placeholder="select class" />
+			</div>
+			<div style="display: inline">Range of dates:
+				<input type="date" class="form-control" id="start-date" placeholder="start date" />
+				<input type="date" class="form-control" id="end-date" placeholder="end date" />
+			</div>
+			<p id="result"></p>	
+		</div>
+		<div class="panel-bottom-buttons" id="two-buttons-backup" >
+			<div class="btn-group">
+				<button type="button" class="btn btn-success" id="btn-download">Download
+					<span class="glyphicon glyphicon-cloud-download"></span>
+				</button>
+				<button type="button" class="btn btn-default" id="btn-upload">Backup
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+				</button>
+			</div>
+		</div>	
+	</div>
+</div>
